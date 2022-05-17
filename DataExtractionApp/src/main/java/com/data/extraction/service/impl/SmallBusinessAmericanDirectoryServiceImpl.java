@@ -1,4 +1,4 @@
-package com.data.extraction.service;
+package com.data.extraction.service.impl;
 
 import java.util.Date;
 import java.util.List;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.data.extraction.entites.SmallBusinessAmericanDirectory;
 import com.data.extraction.repo.SmallBusinessAmericanDirectoryRepo;
+import com.data.extraction.service.SmallBusinessAmericanDirectoryService;
 import com.data.extraction.utils.JsoupUtils;
 
 @Service
