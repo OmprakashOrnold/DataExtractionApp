@@ -5,18 +5,24 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.data.extraction.service.impl.SmallBusinessAmericanDirectoryServiceImpl;
+import com.data.extraction.service.BuiltinDirectoryService;
+import com.data.extraction.service.SmallBusinessAmericanDirectoryService;
 
 @Controller
 public class MainController {
 	
 	@Autowired
-    private SmallBusinessAmericanDirectoryServiceImpl smallBusinessAmericanDirectoryServiceImpl;
+    private SmallBusinessAmericanDirectoryService smallBusinessAmericanDirectoryService;
+	
+	@Autowired
+    private BuiltinDirectoryService builtinDirectoryService;
+	
 	
 	@GetMapping("/start")
 	@ResponseBody
 	public String servcieStart() {
-		smallBusinessAmericanDirectoryServiceImpl.runService();
+		//smallBusinessAmericanDirectoryService.runService();
+		builtinDirectoryService.runService();
 		return "started:";
 	}
 }
