@@ -103,32 +103,19 @@ public class JsoupUtils{
 	public static List<String>  getTargetedSelectorWithAttributeList(Document document,String targetedSelector,String attribute) {
 		List<String> targetResultList=new ArrayList<String>();
 		Elements elements = document.select(targetedSelector);
-		if(attribute.equals("href")) {
-			List<String> targetedResults = elements.stream()
-					.filter(x->x != null && x.childNodeSize()>0)
-					.filter(x->x.hasAttr(attribute))
-					.map(x->x.attr(attribute))
-					.collect(Collectors.toList());
-			targetedResults.stream().filter(y->y!=null).forEach(x->targetResultList.add(x));
-		}if(attribute.equals("src")) {
-			List<String> targetedResults = elements.stream()
-					.filter(x->x != null && x.childNodeSize()>0)
-					.filter(x->x.hasAttr(attribute))
-					.map(x->x.attr(attribute))
-					.collect(Collectors.toList());
-			targetedResults.stream().filter(y->y!=null).forEach(x->targetResultList.add(x));
-		}if(attribute.equals("alt")) {
-			List<String> targetedResults = elements.stream()
-					.filter(x->x != null && x.childNodeSize()>0)
-					.filter(x->x.hasAttr(attribute))
-					.map(x->x.attr(attribute))
-					.collect(Collectors.toList());
-			targetedResults.stream().filter(y->y!=null).forEach(x->targetResultList.add(x));
-		}if(attribute.equals("text")) {
+		
+		if(attribute.equals("text")) {
 			List<String> targetedResults = elements.stream()
 					.filter(x->x != null && x.childNodeSize()>0)
 					.filter(x->x.hasText())
 					.map(x->x.text())
+					.collect(Collectors.toList());
+			targetedResults.stream().filter(y->y!=null).forEach(x->targetResultList.add(x));
+		}else{
+			List<String> targetedResults = elements.stream()
+					.filter(x->x != null && x.childNodeSize()>0)
+					.filter(x->x.hasAttr(attribute))
+					.map(x->x.attr(attribute))
 					.collect(Collectors.toList());
 			targetedResults.stream().filter(y->y!=null).forEach(x->targetResultList.add(x));
 

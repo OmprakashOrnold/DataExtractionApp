@@ -3,6 +3,8 @@ package com.data.extraction.service.impl;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -24,14 +26,17 @@ public class BuiltinDirectoryServiceImpl implements BuiltinDirectoryService{
 	@Autowired
 	private BuiltinDirectoryRepo builtinDirectoryRepo;
 
+	public static Long count=0L;
+
 	@Override
 	public boolean runService() {
 		boolean processed=false;
-		File folder = new File("D:\\Selenium\\downloads\\others");
+		File folder = new File("C:\\OmPrakash\\bulitin");
 		File[] listOfFiles = folder.listFiles();
+		Arrays.sort(listOfFiles, Comparator.comparingLong(File::lastModified));
 		for (File file : listOfFiles) {
 			if (file.isFile()) {
-				File fullFileName = new File("D:\\Selenium\\downloads\\others\\"+file.getName());
+				File fullFileName = new File("C:\\OmPrakash\\bulitin\\"+file.getName());
 				Document document=null;
 				try {
 					document = Jsoup.parse(fullFileName, "UTF-8");
@@ -49,72 +54,80 @@ public class BuiltinDirectoryServiceImpl implements BuiltinDirectoryService{
 	}
 
 	private void processJSONUrl(String jsonUrl) {
-		String response = JSONUtils.readJSONFromUrlWithOkhttp(jsonUrl);
-		String title=null;
-		String year_founded=null;
-		String total_employees=null;
-		String perks_overview=null;
-		String street_address_1=null;
-		String city=null;
-		String state=null;
-		String zipcode=null;
-		String email=null;
-		String facebook=null;
-		String linkedin=null;
-		String twitter=null;
-		String url=null;
-		String logo=null;
-		String industries=null;
-		String mini_description=null;
-		if(response!=null) {
-			JSONObject jsonObject=new JSONObject(response);
-			if(jsonObject!=null) {
-				title = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "title");
-				String or_year_founded = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "year_founded");
-				if(or_year_founded.contains("-")){
-					String year_founded_arr[]=or_year_founded.split("-");
-					year_founded=year_founded_arr[0].trim();
-				}else {
-					year_founded=or_year_founded;
+		count=count+1;
+		if(count>6562) {
+			String response = JSONUtils.readJSONFromUrlWithOkhttp(jsonUrl);
+			if(response!=null&&response.startsWith("{")){
+				String title=null;
+				String year_founded=null;
+				String total_employees=null;
+				String perks_overview=null;
+				String street_address_1=null;
+				String city=null;
+				String state=null;
+				String zipcode=null;
+				String email=null;
+				String facebook=null;
+				String linkedin=null;
+				String twitter=null;
+				String url=null;
+				String logo=null;
+				String industries=null;
+				String mini_description=null;
+				if(response!=null) {
+					JSONObject jsonObject=new JSONObject(response);
+					if(jsonObject!=null) {
+						title = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "title");
+						String or_year_founded = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "year_founded");
+						if(or_year_founded.contains("-")){
+							String year_founded_arr[]=or_year_founded.split("-");
+							year_founded=year_founded_arr[0].trim();
+						}else {
+							year_founded=or_year_founded;
+						}
+
+						total_employees = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "total_employees");
+						String o_perks_overview = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "perks_overview");
+						if(o_perks_overview!=null&&!o_perks_overview.isEmpty()){
+							perks_overview=o_perks_overview; 
+						}
+						street_address_1 = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "street_address_1");
+						city = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "city");
+						state = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "state");
+						zipcode = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "zipcode");
+						email = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "email");
+						facebook = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "facebook");
+						linkedin = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "linkedin");
+						twitter = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "twitter");
+						url = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "url");
+						logo = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "logo");
+						mini_description = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "mini_description");
+						industries = JSONUtils.getInnerJsonObjectCommaSepStrings(jsonObject, "industries", "name");
+
+
+						BuiltinDirectory bd=new BuiltinDirectory();
+						bd.setCompanyName(title);
+						bd.setUrl(url);
+						bd.setLogo("https://builtin.com/cdn-cgi/image/fit=scale-down,sharpen=0.3,f=auto,q=100,w=120,h=120/sites/www.builtin.com/files/"+logo.replace(" ","%20"));
+						bd.setYearFounded(year_founded);
+						bd.setTotalEmployees(total_employees);
+						bd.setPerksOverview(perks_overview);
+						bd.setStreetAddress1(street_address_1);
+						bd.setCity(city);
+						bd.setState(state);
+						bd.setZipcode(zipcode);
+						bd.setEmail(email);
+						bd.setFacebook(facebook);
+						bd.setLinkedin(linkedin);
+						bd.setTwitter(twitter);
+						bd.setIndustries(industries);
+						bd.setMiniDescription(mini_description);
+						bd.setCheckUrl(jsonUrl);
+						bd.setActivityDataTime(new Date());
+						builtinDirectoryRepo.save(bd);
+						System.out.println(url);
+					}
 				}
-				
-				total_employees = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "total_employees");
-				perks_overview = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "perks_overview");
-				street_address_1 = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "street_address_1");
-				city = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "city");
-				state = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "state");
-				zipcode = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "zipcode");
-				email = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "email");
-				facebook = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "facebook");
-				linkedin = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "linkedin");
-				twitter = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "twitter");
-				url = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "url");
-				logo = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "logo");
-				mini_description = JSONUtils.getSpecificFeildFromJSONObject(jsonObject, "mini_description");
-				industries = JSONUtils.getInnerJsonObjectCommaSepStrings(jsonObject, "industries", "name");
-			
-				
-				BuiltinDirectory bd=new BuiltinDirectory();
-				bd.setCompanyName(title);
-				bd.setUrl(url);
-				bd.setLogo("https://builtin.com/cdn-cgi/image/fit=scale-down,sharpen=0.3,f=auto,q=100,w=120,h=120/sites/www.builtin.com/files/"+logo.replace(" ","%20"));
-				bd.setYearFounded(year_founded);
-				bd.setTotalEmployees(total_employees);
-				bd.setPerksOverview(perks_overview);
-				bd.setStreetAddress1(street_address_1);
-				bd.setCity(city);
-				bd.setState(state);
-				bd.setZipcode(zipcode);
-				bd.setEmail(email);
-				bd.setFacebook(facebook);
-				bd.setLinkedin(linkedin);
-				bd.setTwitter(twitter);
-				bd.setIndustries(industries);
-				bd.setMiniDescription(mini_description);
-				bd.setCheckUrl(jsonUrl);
-				bd.setActivityDataTime(new Date());
-				builtinDirectoryRepo.save(bd);
-				System.out.println(url);
 			}
 		}
 	}
